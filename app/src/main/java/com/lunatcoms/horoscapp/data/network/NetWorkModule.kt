@@ -1,6 +1,8 @@
 package com.lunatcoms.horoscapp.data.network
 
+import com.lunatcoms.horoscapp.BuildConfig.BASE_URL
 import com.lunatcoms.horoscapp.data.RepositoryImpl
+import com.lunatcoms.horoscapp.data.core.interceptors.AuthInterceptor
 import com.lunatcoms.horoscapp.domain.Repository
 import dagger.Module
 import dagger.Provides
@@ -22,7 +24,7 @@ object NetWorkModule {
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit
             .Builder()
-            .baseUrl("https://newastro.vercel.app/")
+            .baseUrl(BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
@@ -30,12 +32,13 @@ object NetWorkModule {
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(): OkHttpClient {
+    fun provideOkHttpClient(authInterceptor: AuthInterceptor): OkHttpClient {
 
-        val interceptor = HttpLoggingInterceptor
+        val interceptor = HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)
         return OkHttpClient
             .Builder()
-            .addInterceptor()
+            .addInterceptor(interceptor)
+            .addInterceptor(authInterceptor)
             .build()
     }
 
